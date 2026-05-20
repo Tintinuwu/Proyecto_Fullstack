@@ -1,20 +1,26 @@
 package com.cine.reservas.service;
 
+import com.cine.reservas.client.PagoCliente;
+import com.cine.reservas.dto.PagoRequestDTO;
+import com.cine.reservas.dto.PagoResponseDTO;
 import com.cine.reservas.dto.ReservaRequestDTO;
 import com.cine.reservas.dto.ReservaResponseDTO;
 import com.cine.reservas.model.Resrvas_model;
 import com.cine.reservas.repository.Reserva_repository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReservaService {
 
     private final Reserva_repository reservaRepository;
+    private final PagoCliente pagoCliente;  // ← NUEVO: cliente Feign
 
     private ReservaResponseDTO mapToDTO(Resrvas_model reserva) {
         return new ReservaResponseDTO(
@@ -66,9 +72,44 @@ public class ReservaService {
                 .collect(Collectors.toList());
     }
 
+    // ──────────────────────────────────────────────────────
+    // metodo guardar modificado (con llamada a ms-pagos)
+    // ──────────────────────────────────────────────────────
     public ReservaResponseDTO guardar(ReservaRequestDTO dto) {
+        // 1. Guardar reserva como PENDIENTE
         Resrvas_model reserva = mapToEntity(dto);
-        return mapToDTO(reservaRepository.save(reserva));
+        Resrvas_model reservaGuardada = reservaRepository.save(reserva);
+        log.info("Reserva creada con ID: {} en estado PENDIENTE", reservaGuardada.getId());
+
+        // 2. Llamar a ms-pagos para procesar el pago
+        try {
+            PagoRequestDTO pagoRequest = new PagoRequestDTO(
+                    reservaGuardada.getId(),
+                    dto.getTotal(),
+                    "TARJETA"
+            );
+
+            PagoResponseDTO pagoResponse = pagoCliente.procesarPago(pagoRequest);
+            log.info("Respuesta de ms-pagos: {}", pagoResponse.getEstado());
+
+            // 3. Actualizar estado según respuesta del pago
+            if ("APROBADO".equals(pagoResponse.getEstado())) {
+                reservaGuardada.setEstado("CONFIRMADA");
+                log.info("Pago aprobado, reserva {} confirmada", reservaGuardada.getId());
+            } else {
+                reservaGuardada.setEstado("CANCELADA");
+                log.warn("Pago {}: reserva {} cancelada", pagoResponse.getEstado(), reservaGuardada.getId());
+            }
+
+            return mapToDTO(reservaRepository.save(reservaGuardada));
+
+        } catch (Exception e) {
+            // Si hay error al llamar a ms-pagos, cancelar la reserva
+            reservaGuardada.setEstado("CANCELADA");
+            reservaRepository.save(reservaGuardada);
+            log.error("Error al llamar a ms-pagos: {}", e.getMessage());
+            throw new RuntimeException("Error al procesar el pago: " + e.getMessage());
+        }
     }
 
     public Optional<ReservaResponseDTO> cancelar(Long id) {
