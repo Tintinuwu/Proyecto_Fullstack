@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/Proyecto_Fullstack.iml" filepath="$PROJECT_DIR$/.idea/Proyecto_Fullstack.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ms-usuarios/ms-usuarios/src/main/main.iml" filepath="$PROJECT_DIR$/ms-usuarios/ms-usuarios/src/main/main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pagos/pagos/src/main/main2.iml" filepath="$PROJECT_DIR$/pagos/pagos/src/main/main2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ms-peliculas/ms-peliculas/src/main/main3.iml" filepath="$PROJECT_DIR$/ms-peliculas/ms-peliculas/src/main/main3.iml" />
+      <module fileurl="file://$PROJECT_DIR$/reservas/reservas/src/main/main4.iml" filepath="$PROJECT_DIR$/reservas/reservas/src/main/main4.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ms-peliculas/ms-peliculas/src/test/test.iml" filepath="$PROJECT_DIR$/ms-peliculas/ms-peliculas/src/test/test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pagos/pagos/src/test/test2.iml" filepath="$PROJECT_DIR$/pagos/pagos/src/test/test2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ms-usuarios/ms-usuarios/src/test/test3.iml" filepath="$PROJECT_DIR$/ms-usuarios/ms-usuarios/src/test/test3.iml" />
+      <module fileurl="file://$PROJECT_DIR$/reservas/reservas/src/test/test4.iml" filepath="$PROJECT_DIR$/reservas/reservas/src/test/test4.iml" />
+    </modules>
+  </component>
+</project>
